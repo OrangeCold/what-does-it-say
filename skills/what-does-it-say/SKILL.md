@@ -314,7 +314,9 @@ whiteboard_token: xxx
 - 指定 whiteboard token
 - 要求 subagent 读 `~/.claude/skills/lark-whiteboard/routes/svg.md` 了解完整 workflow
 - 要求 subagent 读 `~/.claude/skills/lark-whiteboard/references/lark-whiteboard-update.md` 了解写入命令
+- **必须将下方"SVG 布局防错规则"完整传递给 subagent**，作为硬性约束
 - 生成 `diagram.svg` → 渲染 PNG → `--check` 检查 → 审查 PNG → 修复迭代（最多 2 轮）→ 导出 OpenAPI JSON → 写入画板
+- **`--check` 发现 text-overflow 时的修复策略**：加宽容器（不要缩短文字），加宽后重新 `--check`，确认 0 error 再导出
 - 写入命令：
   ```bash
   npx -y @larksuite/whiteboard-cli@^0.2.11 -i diagram.json --to openapi --format json \
@@ -338,7 +340,8 @@ whiteboard_token: xxx
 **Subagent 执行失败时的处理**：
 - 如果某个 subagent 报告渲染失败或写入失败，主 agent 在自己的上下文中重试该图表（不再派发新 subagent，避免嵌套上下文消耗），**最多重试一次**
 - 仍失败的图表跳过，不影响其他图表和文档内容
-- SVG 路径如果渲染命令报错或两轮改写仍无法消除 `--check` 的 `text-overflow` error，参考 `~/.claude/skills/lark-whiteboard/SKILL.md` 中的 SVG 失败回退策略
+- SVG 路径如果渲染命令报错或两轮改写仍无法消除 `--check` 的 `text-overflow` error，参考 `~/.claude/skills/lark-whiteboard/SKILL.md` 中的 SVG 失败回退策略（丢弃当前 SVG，改读 `routes/dsl.md` 用 DSL 从零重画）
+- **`--check` 修复纪律**：发现 text-overflow 时，**只加宽容器**，不要缩短文字内容。node-overlap 则拉开间距。每次修复后重新 `--check` 确认 0 error
 
 **图表 1：书籍全景图（位于"🗺️ 整体架构与关键概念"章节，所有类型必需）**
 
@@ -418,8 +421,23 @@ mindmap
 - 使用图标路径（`<path>`）和装饰元素增强可读性和设计感
 - 配色不超过 4 种主色，保持视觉统一
 - **浅色系配色为底**：分组背景区域用浅色/低饱和度填充（如浅蓝 `#EBF5FF`、浅绿 `#E8F5E9`、浅黄 `#FFF8E1`、浅紫 `#F3E8FF`），内容节点用白色填充 + 彩色边框。画板是白底画布，大面积深色色块（深蓝、深紫、深灰）会产生刺眼对比并压住周围内容。文字一律用深色（`#1F2329`），确保可读性。视觉张力靠形状变化、图标、连线和排版节奏来营造，不要靠深色背景
-- 遵循 SVG 渲染约束：文字用 `<text>`、禁止 `<filter>`/`<clipPath>`/`<radialGradient>`、容器宽度留够
+- 遵循 SVG 渲染约束：文字用 `<text>`、禁止 `<filter>`/`<clipPath>`/`<radialGradient>`/`<linearGradient>`、容器宽度留够
 - **不要做成千篇一律的矩形卡片网格**——发挥设计创造力，做出有视觉张力的信息图
+
+**SVG 布局防错规则**（防止文字溢出和元素错位，所有 subagent 必须遵守）：
+
+> 画板会把 SVG 元素转成可编辑节点，并按 Noto Sans SC 字体重新排版文字。CJK 字符约 1em 宽、Latin 约 0.6em。如果容器宽度不够，文字会溢出容器并覆盖相邻元素。以下是经过验证的防错规则：
+
+1. **画布尺寸**：固定宽度 `1600px`，高度按内容自适应（通常 1400-2400px）。不要使用超宽画布（如 2400px），宽画布会导致节点在画板上排列稀疏且缩放后文字更易溢出
+2. **三层上下堆叠**：知识层、路径层、闭环层采用**上下堆叠**布局（每层独占一行），禁止左右三栏并排。单层可用左右排列放多个节点，但三个层之间必须是纵向堆叠
+3. **文字容器宽度**：每个 `<text>` 所在的容器宽度 ≥ `该行中文字符数 × font-size × 1.15 + 40px`（1.15 是安全系数，40px 是左右 padding）。举例：font-size 14px 的 18 个中文字需要 `18 × 14 × 1.15 + 40 ≈ 330px`
+4. **每行文字限制**：单个 `<text>` 元素的中文字符数不超过 20 个（font-size 13-15px 时），超过则拆成多个 `<text>` 上下排列。宁可多行，不要一行塞太多字
+5. **节点间距**：相邻节点之间至少留 **30px 水平间距**和 **20px 垂直间距**，为画板重排留余量
+6. **禁止 `<marker>` 和 `marker-end`**：画板不支持 `<marker>` 定义。箭头用 `<polygon>` 手绘（三角形），放在 `<path>` 或 `<polyline>` 终点处
+7. **禁止 `<linearGradient>`**：所有填充用纯色 hex 值（如 `#3B82F6`），需要深浅变化时用同色系的多个纯色，不要用渐变。半透明效果用 `opacity` 属性
+8. **禁止 `rgba()` 颜色**：改用 hex 颜色 + `opacity` 属性。例如 `rgba(255,255,255,0.85)` → `fill="white" opacity="0.85"`
+9. **`<text>` 不要指定 `font-family`**：画板硬编码 Noto Sans SC，显式指定反而可能引发兼容问题
+10. **`<text>` 的 `y` 坐标**：使用 `dominant-baseline="middle"` 或手动计算 `y = 容器顶部 + font-size + padding_top`，确保文字垂直居中不溢出
 
 **图表 3：读者匹配图（位于"⚖️ 检视阅读结论"章节，所有类型必需）**
 
