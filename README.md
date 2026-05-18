@@ -17,7 +17,7 @@
 
 **依赖：**
 
-- [weread](https://github.com/anthropics/claude-code) — 微信读书数据源
+- [weread](https://cdn.weread.qq.com/skills/weread-skills.zip) — 微信读书数据源
 - [lark-doc](https://github.com/anthropics/claude-code) — 飞书文档创建与编辑
 - [lark-whiteboard](https://github.com/anthropics/claude-code) — 飞书画板图表绘制
 
