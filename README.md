@@ -83,3 +83,11 @@ ls ~/.claude/skills/lark-whiteboard/            # 应存在
 ```
 
 所有检查通过后，在 Claude Code 中说"帮我检视阅读《原则》"即可开始使用。
+
+## 交流群
+
+加入飞书群，交流使用心得、反馈问题：
+
+<p align="center">
+  <img src="docs/飞书群.png" alt="飞书群二维码" width="300" />
+</p>
