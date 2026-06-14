@@ -4,7 +4,7 @@
 
 当 SKILL.md 的 Step 2.1 判定出书籍类型后，参考本文件中对应类型的详细模板来规划文档内容和图表。
 
-> **核心洞察图使用 SVG 渲染**：核心洞察图使用 SVG 格式，通过自由设计的图形元素、颜色分组和折线连线融合知识层、路径层、闭环层三层数据。本文件中的 Mermaid 代码示例仅供内容结构参考，实际渲染需按 SVG workflow 生成 diagram.svg（见 SKILL.md Step 3.4）。
+> **核心洞察图使用 SVG 渲染**：核心洞察图使用 SVG 格式，通过自由设计的图形元素、颜色分组和折线连线融合知识层、路径层、闭环层三层数据。本文件中的 Mermaid 代码示例仅供内容结构参考；实际渲染走 `beautiful-feishu-whiteboard` skill 的 SVG workflow（按书籍类型选风格、读 `RULES.md` 硬规则、生成 `diagram.svg`，见 SKILL.md Step 3.4 Subagent 2）。
 
 ## 类型判定规则
 

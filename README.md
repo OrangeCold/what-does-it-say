@@ -19,7 +19,8 @@
 
 - [weread](https://cdn.weread.qq.com/skills/weread-skills.zip) — 微信读书数据源
 - [lark-doc](https://github.com/larksuite/cli) — 飞书文档创建与编辑
-- [lark-whiteboard](https://github.com/larksuite/cli) — 飞书画板图表绘制
+- [lark-whiteboard](https://github.com/larksuite/cli) — 飞书画板图表绘制（全景图、匹配图）
+- [beautiful-feishu-whiteboard](https://github.com/zarazhangrui/beautiful-feishu-whiteboard) — 核心洞察图的 SVG 渲染（35 种配色风格 + 画板硬规则）
 
 **触发方式：**
 
@@ -29,7 +30,7 @@
 
 ### 1. 安装依赖 Skill
 
-将三个依赖 skill 下载到 `~/.claude/skills/` 目录：
+将四个依赖 skill 下载到 `~/.claude/skills/` 目录：
 
 ```bash
 # 安装微信读书 skill
@@ -38,6 +39,9 @@ unzip /tmp/weread-skills.zip -d ~/.claude/skills/weread
 
 # 安装飞书文档和画板 skill（通过 lark-cli）
 # 参考 https://github.com/larksuite/cli 获取安装指引
+
+# 安装 beautiful-feishu-whiteboard skill（核心洞察图 SVG 渲染）
+# 将该 skill 目录放入 ~/.claude/skills/beautiful-feishu-whiteboard/
 ```
 
 ### 2. 安装本 Skill
@@ -80,6 +84,7 @@ ls ~/.claude/skills/what-does-it-say/SKILL.md  # 应存在
 ls ~/.claude/skills/weread/                     # 应存在
 ls ~/.claude/skills/lark-doc/                   # 应存在
 ls ~/.claude/skills/lark-whiteboard/            # 应存在
+ls ~/.claude/skills/beautiful-feishu-whiteboard/ # 应存在
 ```
 
 所有检查通过后，在 Claude Code 中说"帮我检视阅读《原则》"即可开始使用。
